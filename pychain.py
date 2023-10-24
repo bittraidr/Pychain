@@ -74,7 +74,7 @@ class Block:
 
     # @TODO
     # Rename the `data` attribute to `record`, and set the data type to `Record`
-    data: Any
+    record: Record
 
     creator_id: int
     prev_hash: str = "0"
@@ -142,24 +142,25 @@ class PyChain:
 ################################################################################
 # Streamlit Code
 
-# Adds the cache decorator for Streamlit
-
-
-from functools import lru_cache
-
-@lru_cache(maxsize=None)
-def setup():
-    print("Initializing Chain")
-    return PyChain([Block("Genesis", 0)])
-
-
-
-
+# Streamlit Code
 st.markdown("# PyChain")
 st.markdown("## Store a Transaction Record in the PyChain")
 
-pychain = setup()
+pychain = PyChain([Block(Record("", "", 0.0), 0)])
 
+st.markdown("## The PyChain Ledger")
+pychain_df = pd.DataFrame(pychain.chain).astype(str)
+st.write(pychain_df)
+
+difficulty = st.sidebar.slider("Block Difficulty", 1, 5, 2)
+pychain.difficulty = difficulty
+
+st.sidebar.write("# Block Inspector")
+selected_block = st.sidebar.selectbox("Which block would you like to see?", pychain.chain)
+st.sidebar.write(selected_block)
+
+if st.button("Validate Chain"):
+    st.write(pychain.is_valid())
 ################################################################################
 # Step 3:
 # Add Relevant User Inputs to the Streamlit Interface
@@ -175,6 +176,15 @@ pychain = setup()
 # 5. As part of the Add Block button functionality, update `new_block` so that `Block` consists of an attribute named `record`, which is set equal to a `Record` that contains the `sender`, `receiver`, and `amount` values. The updated `Block`should also include the attributes for `creator_id` and `prev_hash`.
 
 # Add Relevant User Inputs to the Streamlit Interface
+@st.cache_resource()
+def init_pychain():
+    return PyChain([Block(Record("Genesis", "Genesis", 0), 0)])
+
+# Get pychain instance
+pychain = init_pychain()
+
+# Streamlit interface
+st.markdown("# PyChain Ledger")
 
 # Delete the `input_data` variable from the Streamlit interface.
 # input_data = st.text_input("Block Data")  # Remove this line
@@ -183,7 +193,6 @@ pychain = setup()
 # Delete the `input_data` variable from the Streamlit interface.
 # input_data = st.text_input("Block Data")  # Remove this line
 
-# Add input areas to capture sender, receiver, and amount
 sender = st.text_input("Sender")
 receiver = st.text_input("Receiver")
 amount = st.number_input("Amount")
@@ -203,6 +212,10 @@ if st.button("Add Block"):
     pychain.add_block(new_block)
     st.balloons()
 
+# Dropdown menu for selecting blocks
+st.write("Updated PyChain Ledger:")
+updated_pychain_df = pd.DataFrame(pychain.chain).astype(str)
+st.write(updated_pychain_df)
 ################################################################################
 # Step 4:
 # Test the PyChain Ledger by Storing Records

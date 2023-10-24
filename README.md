@@ -2,5 +2,6 @@
 UC Berkeley Fintech: Pychain
 
 
-![Sample Image](Screenshot_1.jpg)
+![Added Blocks](Screenshot_1.jpg)
 
+![Validate Chain](validate_chain.jpg)
